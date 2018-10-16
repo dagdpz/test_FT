@@ -40,11 +40,11 @@ lfp_amp =  [cfg.s1.ampl cfg.s2.ampl cfg.s3.ampl];
 
 
 % spikes
-spikeRate = [10]; % Hz, overall spike rate
+spikeRate = [20]; % Hz, overall spike rate
 spikePhaseFreq = 1; % 1 or 2 or 3, s1 or s2 or s3 components
 spikePhaseMean = [-pi]; % align to trough
 spikePhaseStd  = [0]; % rad
-spikeLockProb = 1; % probability of spike to be locked, the phase-locked firing rate would be max(spikeRate*spikeLockProb,lfp_freq(spikePhaseFreq))
+spikeLockProb = 0.5; % probability of spike to be locked, the phase-locked firing rate would be max(spikeRate*spikeLockProb,lfp_freq(spikePhaseFreq))
 
 
 lockedSpikes = zeros(cfg.numtrl,cfg.trllen*cfg.fsample);
