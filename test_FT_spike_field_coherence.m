@@ -2,7 +2,7 @@
 % http://www.fieldtriptoolbox.org/tutorial/spikefield
 
 cfg = [];
-cfg.numtrl	= 20;
+cfg.numtrl	= 5;
 cfg.fsample     = 1000; % Hz
 cfg.trllen      = 1; % s
 
@@ -43,25 +43,29 @@ lfp_amp =  [cfg.s1.ampl cfg.s2.ampl cfg.s3.ampl];
 spikeRate = [20]; % Hz, overall spike rate
 spikePhaseFreq = 1; % 1 or 2 or 3, s1 or s2 or s3 components
 spikePhaseMean = [-pi]; % align to trough
-spikePhaseStd  = [0]; % rad
+spikePhaseStd  = [pi/60]; % rad, spread around spikePhaseMean
 spikeLockProb = 0.5; % probability of spike to be locked, the phase-locked firing rate would be max(spikeRate*spikeLockProb,lfp_freq(spikePhaseFreq))
 
 
 lockedSpikes = zeros(cfg.numtrl,cfg.trllen*cfg.fsample);
 Spikes = test_FT_simulate_spike_train(spikeRate*(1-spikeLockProb),cfg.trllen,cfg.numtrl); % non-locked spikes
 for t = 1:cfg.numtrl,
-	% for each trial, find the phase (of the trough) of corresponding freq component
+	% for each trial, find the phase (of the trough) of the corresponding freq component s
 	 s = data.trial{t}(spikePhaseFreq+1,:);
 	 taxis = data.time{t};
 	 p = angle(hilbert(s));
 	 trough_idx = find(diff(p)<-6); % find indices of the troughs
 	 
 	 lockedSpikes_idx = trough_idx(rand(size(trough_idx)) <= spikeRate*spikeLockProb/lfp_freq(spikePhaseFreq));
+	 
+	 % add some variability to relative phase of spikes and troughs
+	 lockedSpikes_idx = fix(lockedSpikes_idx+randn(size(lockedSpikes_idx))*spikePhaseStd*(cfg.fsample/lfp_freq(spikePhaseFreq)));
+	 lockedSpikes_idx = ig_limit_range_min_max(lockedSpikes_idx,1,cfg.fsample*cfg.trllen);
 	 lockedSpikes(t,lockedSpikes_idx)=1;
 	 Spikes(t,lockedSpikes_idx) = 1; % add locked spikes to spikes
 	 data.trial{t} = [data.trial{t}; Spikes(t,:)]; 
 	 
-	 if 0 % plot lfp and spikes
+	 if 0 % plot lfp and spikes (for illustration and debugging)
 		 spikes_idx = find(Spikes(t,:));
 		 rand_rgb = rand(1,3);
 		 plot(taxis,s,'Color',rand_rgb); hold on;
@@ -92,9 +96,9 @@ sta		 = ft_spiketriggeredaverage(cfg, data);
 % plot the sta
 figure('Name','STA');
 plot(sta.time, sta.avg(:,:)')
-legend(data.label{1})
-xlabel('time (s)')
-xlim(cfg.timwin)
+legend(data.label{1});
+xlabel('time (s)');
+xlim(cfg.timwin);
 
 % Spike-triggered spectrum
 
@@ -133,6 +137,33 @@ statSts           = ft_spiketriggeredspectrum_stat(cfg,stsConvol);
 
 % plot the results
 figure('Name','Spike-triggered spectrum');
-plot(statSts.freq,statSts.ppc0')
+plot(statSts.freq,statSts.ppc0');
+xlabel('frequency');
+ylabel(cfg.method);
+
+
+% now assess coherence using Cronux
+params.Fs	=1000; % sampling frequency
+params.fpass	=[1 100]; % band of frequencies to be kept
+params.tapers	=[2 4]; % taper parameters
+params.pad	=2; % pad factor for fft
+params.err	=[2 0.05];
+params.trialave =1;
+
+% LFP: time x trials
+cfg			= [];
+cfg.trials		= 'all';
+cfg.channel		= data.label{1};
+data_lfp		= ft_selectdata(cfg, data);
+chr_data1		= test_FT_fieldtrip2chronux(data_lfp,'lfp');
+
+cfg.channel		= data.label{6};
+data_spikes		= ft_selectdata(cfg, data);
+chr_data2		= test_FT_fieldtrip2chronux(data_spikes,'spikes');
+
+[C,phi,S12,S1,S2,f,zerosp,confC,phistd,Cerr]=coherencycpt(chr_data1,chr_data2,params,0);
+figure('Name','Chronux coherencycpt'); 
+subplot(311); plot(f,C); hold on; plot(f,Cerr(1,:),'r:'); plot(f,Cerr(2,:),'r:');
+subplot(312); plot(f,10*log10(S1));
+subplot(313); plot(f,10*log10(S2));
 xlabel('frequency')
-ylabel(cfg.method)
