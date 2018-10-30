@@ -2,7 +2,7 @@
 % http://www.fieldtriptoolbox.org/tutorial/spikefield
 
 cfg = [];
-cfg.numtrl	= 5;
+cfg.numtrl	= 20;
 cfg.fsample     = 1000; % Hz
 cfg.trllen      = 1; % s
 
@@ -85,6 +85,7 @@ data.label = {'lfp1', 's1', 's2', 's3', 'noise', 'spk1'};
 % data_all = ft_appendspike([],data, Spikes)
 
 % Spike-triggered average (sta)
+disp('Spike-triggered average (sta)');
 cfg              = [];
 cfg.keeptrials	= 'yes';
 cfg.timwin       = [-0.15 0.15]; % take 200 ms
@@ -101,7 +102,7 @@ xlabel('time (s)');
 xlim(cfg.timwin);
 
 % Spike-triggered spectrum
-
+disp('Spike-triggered spectrum, mtmfft');
 % method 1
 cfg              = [];
 cfg.method       = 'mtmfft';
@@ -115,6 +116,7 @@ stsFFT           = ft_spiketriggeredspectrum(cfg, data);
 ang		 = angle(stsFFT.fourierspctrm{1});
 mag		 = abs(stsFFT.fourierspctrm{1});
 
+disp('Spike-triggered spectrum, mtmconvol');
 % method 2
 cfg           = [];
 cfg.method    = 'mtmconvol';
@@ -142,6 +144,7 @@ xlabel('frequency');
 ylabel(cfg.method);
 
 
+disp('now assess coherence using Cronux');
 % now assess coherence using Cronux
 params.Fs	=1000; % sampling frequency
 params.fpass	=[1 100]; % band of frequencies to be kept
