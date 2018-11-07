@@ -38,6 +38,9 @@ data = ft_freqsimulation(cfg);
 lfp_freq = [cfg.s1.freq cfg.s2.freq cfg.s3.freq];
 lfp_amp =  [cfg.s1.ampl cfg.s2.ampl cfg.s3.ampl];
 
+figure('Name', 'Simulated LFP');
+plot(data.time{1}, data.trial{1}(1, 1:1000));
+title('Simulated LFP signal')
 
 % spikes
 spikeRate = [20]; % Hz, overall spike rate
@@ -143,7 +146,32 @@ plot(statSts.freq,statSts.ppc0');
 xlabel('frequency');
 ylabel(cfg.method);
 
+%% Compute Coherence (coh) through ft_freqanalysis and ft_connectivityanalysis
 
+% for convenience select only LFP and spike data
+cfg = []
+cfg.channel = {'lfp1', 'spk1'}
+data_selected = ft_selectdata(cfg, data)
+
+cfg = [];
+cfg.method	    = 'mtmfft';
+cfg.taper	    = 'hanning'; % 'hanning' | 'dpss'
+cfg.tapsmofrq	= 4; % for dpss
+cfg.output      = 'powandcsd'; % powandcsd | fourier (for amplcorr or powcorr)
+cfg.foilim      = [0 100];
+freq            = ft_freqanalysis(cfg, data_selected);
+
+cfg = [];
+cfg.method	= 'coh'; % coh plv ppc amplcorr powcorr  
+cfg.complex	= 'complex'; % abs complex
+
+conn = ft_connectivityanalysis(cfg, freq);
+
+figure('Name', 'FT Coherence')
+plot(conn.freq, abs(conn.cohspctrm));
+
+
+%%
 disp('now assess coherence using Cronux');
 % now assess coherence using Cronux
 params.Fs	=1000; % sampling frequency
