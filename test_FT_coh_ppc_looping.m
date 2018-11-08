@@ -1,9 +1,19 @@
 % This script loops through different firing rate and plots ppc and coh 
 % Based on test_FT_spike_field_coherence.m, check all the descriptions
 % there
-rates = [0.1 0.25 0.4 0.5 0.7] %choose rates for looping
-rates_labels = {'0.1', '0.25', '0.4', '0.5', '0.7'}
-count = 1
+clear; close all; 
+
+rates = [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9]; %choose rates for looping
+rates_labels = {'0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9'};
+count = 1;
+
+% parameters configuration for Chronux
+params.Fs	=1000; % sampling frequency
+params.fpass	=[1 100]; % band of frequencies to be kept
+params.tapers	=[2 4]; % taper parameters
+params.pad	=2; % pad factor for fft
+params.err	=[2 0.05];
+params.trialave =1;
 
 for x=rates
 
@@ -123,38 +133,10 @@ cfg.complex	= 'complex'; % abs complex
 
 conn = ft_connectivityanalysis(cfg, freq);
 
-coh.freq = conn.freq
-coh.coef(count, :) = abs(conn.cohspctrm)
+coh.freq = conn.freq;
+coh.coef(count, :) = abs(conn.cohspctrm);
 
-count = count + 1
-end
-
-figure('Name', 'Coh and PPC comparison with different FR') % add LFP simulation parameters here
-title('whatever')
-subplot(1,2,1)
-plot(coh.freq, coh.coef)
-xlabel('Frequency')
-ylabel('Coh')
-title('Coherence using FT')
-
-subplot(1,2,2)
-plot(ppc.freq, ppc.coef)
-xlabel('Frequency')
-ylabel('Ppc0')
-title('PPC using FT')
-legend(rates_labels)
-
-
-%%
-disp('now assess coherence using Cronux');
-% now assess coherence using Cronux
-params.Fs	=1000; % sampling frequency
-params.fpass	=[1 100]; % band of frequencies to be kept
-params.tapers	=[2 4]; % taper parameters
-params.pad	=2; % pad factor for fft
-params.err	=[2 0.05];
-params.trialave =1;
-
+% Calculating coherency with Chronux
 % LFP: time x trials
 cfg			= [];
 cfg.trials		= 'all';
@@ -167,8 +149,53 @@ data_spikes		= ft_selectdata(cfg, data);
 chr_data2		= test_FT_fieldtrip2chronux(data_spikes,'spikes');
 
 [C,phi,S12,S1,S2,f,zerosp,confC,phistd,Cerr]=coherencycpt(chr_data1,chr_data2,params,0);
-figure('Name','Chronux coherencycpt'); 
-subplot(311); plot(f,C); hold on; plot(f,Cerr(1,:),'r:'); plot(f,Cerr(2,:),'r:');
-subplot(312); plot(f,10*log10(S1));
-subplot(313); plot(f,10*log10(S2));
-xlabel('frequency')
+
+chronux_coh.freq = f;
+chronux_coh.coef(count, :) = C;
+
+count = count + 1;
+end
+
+%% 
+figure('Name', 'Coh and PPC comparison with different FR') % add LFP simulation parameters here
+title('whatever')
+subplot(1,3,1)
+plot(coh.freq, coh.coef)
+xlabel('Frequency')
+ylabel('Coh')
+title('Coherence using FT')
+
+subplot(1,3,2)
+plot(chronux_coh.freq, chronux_coh.coef)
+xlabel('Frequency')
+ylabel('Coh')
+title('Coh using Chronux')
+
+subplot(1,3,3)
+plot(ppc.freq, ppc.coef)
+xlabel('Frequency')
+ylabel('Ppc0')
+title('PPC using FT')
+legend(rates_labels)
+
+%% Compare coh in FT and Cronux
+figure('Name', 'FT vs Chronux coh comparison');
+freq_man = linspace(1.2207,100,length(chronux_coh.coef(5, :))) %doublecheck how it is constructed and whether introduces shift
+for m = 1:length(rates)
+    subplot(3,3,m)
+    plot(coh.coef(m, :), 'r', 'DisplayName', 'FT'); hold on; plot(freq_man, chronux_coh.coef(m, :))
+    xlim([0 100])
+    ylim([0 1])
+    legend('FT', 'Chronux')
+    title(['Spiking probability is ', rates_labels(m)])
+end
+
+% legend, x up to 100, title, y up to 1
+
+%% Plot the output of Chronux - what are the other two? 
+
+% figure('Name','Chronux coherencycpt'); 
+% subplot(311); plot(f,C); hold on; plot(f,Cerr(1,:),'r:'); plot(f,Cerr(2,:),'r:');
+% subplot(312); plot(f,10*log10(S1));
+% subplot(313); plot(f,10*log10(S2));
+% xlabel('frequency')
