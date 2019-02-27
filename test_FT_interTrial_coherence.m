@@ -47,7 +47,8 @@ else % create data "manually"
 end
 
 figure
-d1 = ft_selectdata(data,'channel',data.label{1});
+cfg.channel = data.label{1};
+d1 = ft_selectdata(cfg,data);
 
 plot(data.time{1}, cell2mat(d1.trial')); title(sprintf('channel %s', data.label{1}));
 
