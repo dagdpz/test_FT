@@ -11,13 +11,16 @@ cfg.output = 'mixed';
 cfg.fsample = 1000;
 cfg.numtrl  = 1;
 cfg.trllen  = 1; % s
-cfg.s1.freq = 30;
-cfg.s1.ampl = 3;
+cfg.s1.freq = 4;
+cfg.s1.ampl = 5;
 cfg.s1.phase = 0;
-cfg.s2.freq = 80;
-cfg.s2.ampl = 2; % use 0 to have only one signal
+cfg.s2.freq = 30; % use 0 to have only one signal
+cfg.s2.ampl = 3;
 cfg.s2.phase = 0;
-cfg.noise.ampl = 2;
+cfg.s3.freq = 80;
+cfg.s3.ampl = 2; % use 0 to have only one signal
+cfg.s3.phase = 0;
+cfg.noise.ampl = 0;
 
 data = ft_freqsimulation(cfg);
 size(data)
@@ -28,7 +31,7 @@ xlabel('Time (s)');
 ylabel('Amplitude');
 
 cfg        = [];
-cfg.method = 'mtmfft'; % mtmfft | wavelet
+cfg.method = 'wavelet'; % mtmfft | wavelet
 cfg.output = 'fourier'; % fourier | pow
 cfg.pad    = 'maxperlen';
 cfg.foilim = [0 100];
