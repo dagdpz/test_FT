@@ -106,4 +106,4 @@ disp(sprintf('spikeRate %d Hz, spikeLockProb %.2f, mean rate %.2f, mean locked r
 
 data.label = {'lfp1', 's1', 's2', 's3', 'noise', 'spk1'};
 
-plotTrial( 1, data, spikePhaseFreq, spikeRate, spikeLockProb, cfg.trllen, lockedSpikes, Spikes )
+MS_test_FT_plotTrial( 1, data, spikePhaseFreq, spikeRate, spikeLockProb, cfg.trllen, lockedSpikes, Spikes )

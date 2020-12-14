@@ -1,4 +1,4 @@
-function [ output_args ] = plotTrial( which_trial, data, spikePhaseFreq, spikeRate, spikeLockProb, trllen, lockedSpikes, Spikes )
+function [ output_args ] = MS_test_FT_plotTrial( which_trial, data, spikePhaseFreq, spikeRate, spikeLockProb, trllen, lockedSpikes, Spikes )
 % Use this function to take a look at how simulated data looks like
 
 subplot(4, 1, 1);

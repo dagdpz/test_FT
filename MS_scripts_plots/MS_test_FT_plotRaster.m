@@ -1,4 +1,4 @@
-function [] = plotRaster(spikeMat, tVec)
+function [] = MS_test_FT_plotRaster(spikeMat, tVec)
 hold all;
 for trialCount = 1:size(spikeMat,1)
     spikePos = tVec(spikeMat(trialCount, :));
