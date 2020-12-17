@@ -3,17 +3,21 @@
 % https://www.fieldtriptoolbox.org/workshop/oslo2019/introduction/
 % https://www.fieldtriptoolbox.org/workshop/oslo2019/statistics/
 
-numtrl = 100;
+numtrl = 100; % for each of two conditions
 noise1 = 1;
 noise2 = 1;
 ampl_diff = 1;
 alpha = 0.05;
+n_samples = 200;
+
+idx_diff = [160:170 180:181 185:195]; % indices when data1 ~= data2
+idx_same = setdiff(1:n_samples,idx_diff);
 
 % signals
 cfg = [];
 cfg.method  = 'superimposed';
 cfg.output = 'mixed';
-cfg.fsample = 200;
+cfg.fsample = n_samples;
 cfg.numtrl  = numtrl;
 cfg.trllen  = 1; % s
 cfg.s1.freq = 1;
@@ -38,8 +42,7 @@ data12 = ft_freqsimulation(cfg);
 
 data12 = ft_freqsimulation(cfg);
 
-idx_diff = [160:170 180:181 185:195]; % indices when data1 ~= data2
-idx_same = setdiff(1:200,idx_diff);
+
 
 for t = 1:cfg.numtrl,
     data2.trial{t}(idx_same) = data12.trial{t}(idx_same);
