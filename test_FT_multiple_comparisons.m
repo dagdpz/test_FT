@@ -51,25 +51,25 @@ end
 data1.trialinfo = ones(cfg.numtrl,1);
 data2.trialinfo = 2*ones(cfg.numtrl,1);
 
-cfg = [];
-cfg.trialdef.pre    = 0.5; % s
-cfg.trialdef.post   = 0.5; % s
-cfg.trialdef.numtrl = numtrl;
-cfg.trialdef.type = 1;
-cfg.trialfun = 'test_FT_multiple_comparisons_trialfun';
-
-[cfgt] = ft_definetrial(cfg);
-data1=ft_redefinetrial(cfgt,data1);
-
-cfg = [];
-cfg.trialdef.pre    = 0.5; % s
-cfg.trialdef.post   = 0.5; % s
-cfg.trialdef.numtrl = numtrl;
-cfg.trialdef.type = 2;
-cfg.trialfun = 'test_FT_multiple_comparisons_trialfun';
-
-[cfgt] = ft_definetrial(cfg);
-data2=ft_redefinetrial(cfgt,data2);
+% cfg = [];
+% cfg.trialdef.pre    = 0.5; % s
+% cfg.trialdef.post   = 0.5; % s
+% cfg.trialdef.numtrl = numtrl;
+% cfg.trialdef.type = 1;
+% cfg.trialfun = 'test_FT_multiple_comparisons_trialfun';
+% 
+% [cfgt] = ft_definetrial(cfg);
+% data1=ft_redefinetrial(cfgt,data1);
+% 
+% cfg = [];
+% cfg.trialdef.pre    = 0.5; % s
+% cfg.trialdef.post   = 0.5; % s
+% cfg.trialdef.numtrl = numtrl;
+% cfg.trialdef.type = 2;
+% cfg.trialfun = 'test_FT_multiple_comparisons_trialfun';
+% 
+% [cfgt] = ft_definetrial(cfg);
+% data2=ft_redefinetrial(cfgt,data2);
 
 
 figure
@@ -85,7 +85,7 @@ xlabel('Time (s)');
 
 data = ft_appenddata([], data1, data2);
 
-% average across trials, so that mask can added
+% average across trials, so that mask can be added
 cfg           = [];
 data1a = ft_timelockanalysis(cfg, data1);
 data2a = ft_timelockanalysis(cfg, data2);
@@ -134,8 +134,8 @@ data1a.mask = stat_t_1.mask; % adding stat mask
 ft_singleplotER(cfg, data1a, data2a);
 hold on
 plot([data1a.time(1), data1a.time(end)], [0 0], 'k--') % hor. line
-plot(stat_t.time,stat_t_1.prob,'k');
-plot(stat_t.time(stat_t_1.prob<alpha),stat_t_1.prob(stat_t_1.prob<alpha),'r.');
+plot(stat_t_1.time,stat_t_1.prob,'k');
+plot(stat_t_1.time(stat_t_1.prob<alpha),stat_t_1.prob(stat_t_1.prob<alpha),'r.');
 title('no multiple correction');
 
 subplot(3,1,2)
@@ -143,6 +143,6 @@ data1a.mask = stat_t_2.mask; % adding stat mask
 ft_singleplotER(cfg, data1a, data2a);
 hold on
 plot([data1a.time(1), data1a.time(end)], [0 0], 'k--') % hor. line
-plot(stat_t.time,stat_t_2.prob,'k');
-plot(stat_t.time(stat_t_2.prob<alpha),stat_t_2.prob(stat_t_2.prob<alpha),'r.');
+plot(stat_t_2.time,stat_t_2.prob,'k');
+plot(stat_t_2.time(stat_t_2.prob<alpha),stat_t_2.prob(stat_t_2.prob<alpha),'r.');
 title('cluster');
