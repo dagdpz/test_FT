@@ -1,4 +1,4 @@
-% test_FT_spectrum
+% test_FT_reject_noisy_trials
 % run test_FT_initialize first, but only once
 
 % http://www.fieldtriptoolbox.org/example/effects_of_tapering_for_power_estimates_in_the_frequency_domain
@@ -9,7 +9,7 @@ cfg = [];
 cfg.method  = 'superimposed';
 cfg.output = 'mixed';
 cfg.fsample = 1000;
-cfg.numtrl  = 1;
+cfg.numtrl  = 2;
 cfg.trllen  = 2; % s
 cfg.s1.freq = 4;
 cfg.s1.ampl = 5;
